@@ -17,12 +17,24 @@ Sentry.init({
     //     new Sentry.Replay(),
     // ],
     // Performance Monitoring
+    environment: import.meta.env.MODE,
     release: __SENTRY_RELEASE__,
     tracesSampleRate: 1.0, // Capture 100% of the transactions, reduce in production!
     // Session Replay
     trackComponents: true,
     logErrors: true,
-    integrations: [new BrowserTracing()],
+    integrations: [
+        new Sentry.BrowserTracing({
+            routingInstrumentation: Sentry.vueRouterInstrumentation(router),
+            tracingOrigins: ["localhost", "my-site-url.com", /^\//],
+          }),
+    ],
 });
 app.use(router)
 app.mount('#app')
+
+const user = {
+    email: 'rafael@teste.com'
+}
+Sentry.setUser(user)
+Sentry.configureScope((scope) => scope.setUser(null))
